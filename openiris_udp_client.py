@@ -219,8 +219,10 @@ if __name__ == "__main__":
     eyexy = RingBuffer(1000)
     plt.ion()
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(121)
+    axeye = fig.add_subplot(122)
     line1 = None
+    line_eye = None
     counter = 0
 
     if not ip:
@@ -228,6 +230,7 @@ if __name__ == "__main__":
     with OpenIrisClient(ip) as client:
         while True:
             data = client.fetch_data(True)
+
             if data is not None:
                 eyexy.add((data.left.frame_number, data.left.pupil.x, data.left.pupil.y))
                 counter += 1
@@ -248,7 +251,17 @@ if __name__ == "__main__":
                         line2.set_ydata(y)
                     if imax<(imin+1000):
                         imax = imin+1000
-                    plt.xlim(imin, imax)
+                    ax.set_xlim(imin, imax)
+                    ax.set_ylim(100,600)
+
+                    if not line_eye:
+                        line_eye, = axeye.plot(x[-1], y[-1], 'go')
+                        axeye.set_xlim(-5,5)
+                        axeye.set_ylim(-5,5)
+                    else:
+                        line_eye.set_xdata([x[-1]])
+                        line_eye.set_ydata([y[-1]])
+
                     fig.canvas.draw()
                     fig.canvas.flush_events()
             else:
